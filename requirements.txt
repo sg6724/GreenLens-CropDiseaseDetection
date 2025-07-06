@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+google-generativeai
+gtts
+numpy
+opencv-python
+pillow
+python-multipart
+requests
+torch
+torchvision
+python-dotenv
+googletrans
+google-genai

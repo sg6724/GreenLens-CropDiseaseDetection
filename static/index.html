@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenLens - AI Crop Disease Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10B981',
+                        secondary: '#059669',
+                        accent: '#34D399',
+                        'emerald-gradient': '#6EE7B7'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui']
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'bounce-gentle': 'bounceGentle 2s infinite'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gradient-to-r from-primary to-secondary shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div class="flex items-center">
+                    <div class="bg-white p-2 rounded-lg shadow-md mr-3">
+                        <i data-feather="eye" class="text-primary" size="24"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-white">GreenLens</h1>
+                    <span class="ml-2 bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium">AI</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <div class="text-white/90 text-right">
+                        <div class="text-sm">AI-Powered</div>
+                        <div class="text-lg font-semibold">Crop Disease Detection</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="text-center mb-12">
+            <div class="animate-fade-in">
+                <h2 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-6">
+                    Detect Crop Diseases with AI
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    Upload an image of your crop to get instant disease detection, explainable AI visualization, 
+                    weather-based risk assessment, and actionable remedies.
+                </p>
+                <div class="flex justify-center mt-8 space-x-8">
+                    <div class="flex items-center text-gray-600">
+                        <div class="bg-primary/10 p-3 rounded-full mr-3">
+                            <i data-feather="zap" class="text-primary" size="20"></i>
+                        </div>
+                        <span class="text-sm font-medium">Instant Analysis</span>
+                    </div>
+                    <div class="flex items-center text-gray-600">
+                        <div class="bg-primary/10 p-3 rounded-full mr-3">
+                            <i data-feather="cpu" class="text-primary" size="20"></i>
+                        </div>
+                        <span class="text-sm font-medium">AI-Powered</span>
+                    </div>
+                    <div class="flex items-center text-gray-600">
+                        <div class="bg-primary/10 p-3 rounded-full mr-3">
+                            <i data-feather="shield" class="text-primary" size="20"></i>
+                        </div>
+                        <span class="text-sm font-medium">Expert Guidance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-12 border border-gray-100">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Upload Area -->
+                <div class="flex-1">
+                    <label class="block text-lg font-semibold text-gray-800 mb-4">
+                        📸 Upload Crop Image
+                    </label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-10 text-center hover:border-primary transition-all duration-300 hover:bg-primary/5 group"
+                         id="uploadArea">
+                        <input type="file" id="imageInput" accept="image/*" class="hidden">
+                        <div class="transition-transform group-hover:scale-110 duration-300">
+                            <i data-feather="upload-cloud" class="mx-auto text-gray-400 group-hover:text-primary mb-4" size="64"></i>
+                        </div>
+                        <p class="text-gray-600 text-lg">
+                            <span class="font-semibold text-primary cursor-pointer hover:text-secondary transition-colors" id="uploadTrigger">
+                                Click to upload
+                            </span>
+                            or drag and drop
+                        </p>
+                        <p class="text-sm text-gray-500 mt-3">PNG, JPG, GIF up to 10MB</p>
+                        <div class="mt-4 flex justify-center space-x-4 text-xs text-gray-400">
+                            <span>✓ Leaves</span>
+                            <span>✓ Fruits</span>
+                            <span>✓ Stems</span>
+                            <span>✓ Full Plant</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Image Preview -->
+                    <div id="imagePreview" class="mt-6 hidden">
+                        <div class="relative rounded-xl overflow-hidden shadow-lg">
+                            <img id="previewImage" class="w-full h-72 object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent">
+                                <div class="absolute bottom-4 left-4 text-white">
+                                    <p class="text-sm opacity-90">Ready for analysis</p>
+                                    <p id="fileName" class="font-medium"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location & Analysis -->
+                <div class="flex-1">
+                    <label class="block text-lg font-semibold text-gray-800 mb-4">
+                        📍 Your Location
+                    </label>
+                    <div class="relative mb-6">
+                        <input type="text" id="locationInput" placeholder="Enter city or coordinates" 
+                               class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-lg">
+                        <i data-feather="map-pin" class="absolute right-4 top-4 text-gray-400"></i>
+                    </div>
+                    
+                    <!-- Analysis Button -->
+                    <button id="analyzeBtn" 
+                            class="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 px-8 rounded-xl font-semibold text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                        <span id="analyzeText">🔍 Analyze Crop</span>
+                        <div id="loadingSpinner" class="hidden inline-block ml-3">
+                            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        </div>
+                    </button>
+
+                    <!-- Quick Tips -->
+                    <div class="mt-6 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">💡 Tips for Best Results</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Take clear, well-lit photos</li>
+                            <li>• Focus on affected plant areas</li>
+                            <li>• Include multiple symptoms if visible</li>
+                            <li>• Avoid blurry or dark images</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden">
+            <!-- Disease Detection Results -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                    <i data-feather="search" class="mr-2 text-primary"></i>
+                    Disease Detection Results
+                </h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Detection Info -->
+                    <div>
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <h4 class="font-medium text-gray-900 mb-2">Detected Disease</h4>
+                            <p id="detectedDisease" class="text-lg font-semibold text-red-600"></p>
+
+                        </div>
+                        
+                        <!-- Audio Controls -->
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900 mb-2 flex items-center">
+                                <i data-feather="volume-2" class="mr-2 text-blue-600"></i>
+                                Audio Summary
+                            </h4>
+                            <button id="playAudioBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i data-feather="play" class="inline mr-2"></i>
+                                Play Audio Guide
+                            </button>
+                            <audio id="audioPlayer" controls class="w-full mt-2 hidden"></audio>
+                        </div>
+                    </div>
+                    
+                    <!-- Grad-CAM Visualization -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-2">Disease Area Visualization</h4>
+                        <div id="gradcamContainer" class="border rounded-lg overflow-hidden">
+                            <img id="gradcamImage" class="w-full h-64 object-cover">
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">
+                            <span class="text-red-600 font-medium">Red areas</span> show regions where the AI detected disease symptoms
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather & Risk Assessment -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                    <i data-feather="cloud" class="mr-2 text-blue-500"></i>
+                    Weather & Risk Assessment
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Weather Info -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-3">Current Weather</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Location:</span>
+                                <span id="weatherLocation" class="font-medium"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Temperature:</span>
+                                <span id="weatherTemp" class="font-medium"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Humidity:</span>
+                                <span id="weatherHumidity" class="font-medium"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Condition:</span>
+                                <span id="weatherCondition" class="font-medium"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% comment %} <!-- Risk Assessment -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-3">Disease Risk Level</h4>
+                        <div id="riskBadge" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-3">
+                            <span id="riskLevel"></span>
+                        </div>
+                        <p id="riskAssessment" class="text-gray-700 text-sm"></p>
+                    </div>
+                </div>
+            </div> {% endcomment %}
+
+            <!-- AI-Generated Treatment & Care -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-xl p-8 mb-8 border border-green-100">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <div class="bg-green-500 p-3 rounded-full mr-4">
+                            <i data-feather="heart" class="text-white" size="24"></i>
+                        </div>
+                        AI Treatment & Care Plan
+                    </h3>
+                    <div class="flex space-x-2">
+                        <button id="copyTreatmentBtn" class="bg-white/80 hover:bg-white text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                            <i data-feather="copy" size="16" class="mr-2"></i>
+                            Copy
+                        </button>
+                        <button id="printTreatmentBtn" class="bg-white/80 hover:bg-white text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                            <i data-feather="printer" size="16" class="mr-2"></i>
+                            Print
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Treatment Plan Content -->
+                <div id="treatmentPlan" class="space-y-6">
+                    <!-- Quick Summary -->
+                    <div id="treatmentSummary" class="bg-white/70 rounded-xl p-6 border-l-4 border-green-500">
+                        <div class="flex items-center mb-3">
+                            <i data-feather="info" class="text-green-600 mr-2" size="20"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Quick Summary</h4>
+                        </div>
+                        <p id="summaryText" class="text-gray-700 leading-relaxed"></p>
+                    </div>
+
+                    <!-- Treatment Steps -->
+                    <div id="treatmentSteps" class="space-y-4">
+                        <div class="flex items-center mb-4">
+                            <i data-feather="list" class="text-green-600 mr-2" size="20"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Treatment Steps</h4>
+                        </div>
+                        <div id="stepsContainer" class="space-y-3">
+                            <!-- Steps will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Prevention Tips -->
+                    <div id="preventionTips" class="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
+                        <div class="flex items-center mb-3">
+                            <i data-feather="shield" class="text-blue-600 mr-2" size="20"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Prevention Tips</h4>
+                        </div>
+                        <div id="preventionContainer" class="space-y-2">
+                            <!-- Prevention tips will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div id="treatmentTimeline" class="bg-amber-50 rounded-xl p-6 border-l-4 border-amber-500">
+                        <div class="flex items-center mb-3">
+                            <i data-feather="clock" class="text-amber-600 mr-2" size="20"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Expected Timeline</h4>
+                        </div>
+                        <p id="timelineText" class="text-gray-700"></p>
+                    </div>
+
+                    <!-- Emergency Action -->
+                    <div id="emergencyAction" class="bg-red-50 rounded-xl p-6 border-l-4 border-red-500 hidden">
+                        <div class="flex items-center mb-3">
+                            <i data-feather="alert-triangle" class="text-red-600 mr-2" size="20"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Immediate Action Required</h4>
+                        </div>
+                        <p id="emergencyText" class="text-gray-700 font-medium"></p>
+                    </div>
+                </div>
+
+                <!-- Confidence Indicator -->
+                <div class="mt-6 flex items-center justify-between bg-white/50 rounded-lg p-4">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i data-feather="star" class="text-yellow-500 mr-2" size="16"></i>
+                        AI Confidence Level
+                    </div>
+                    <div id="confidenceBar" class="flex items-center space-x-3">
+                        <div class="w-32 bg-gray-200 rounded-full h-2">
+                            <div id="confidenceFill" class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-1000"></div>
+                        </div>
+                        <span id="confidenceText" class="text-sm font-medium text-gray-700"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Analysis -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                    <i data-feather="image" class="mr-2 text-purple-500"></i>
+                    Detailed Image Analysis
+                </h3>
+                
+                <div class="prose max-w-none">
+                    <div id="imageAnalysisContent" class="text-gray-700 whitespace-pre-wrap"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Section -->
+        <div id="errorSection" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+            <div class="flex items-center">
+                <i data-feather="alert-circle" class="text-red-500 mr-3"></i>
+                <div>
+                    <h3 class="text-lg font-medium text-red-800">Error</h3>
+                    <p id="errorMessage" class="text-red-700 mt-1"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p class="text-gray-300">
+                    ©Empowering farmers with AI-powered crop disease detection.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Initialize Feather icons
+        feather.replace();
+    </script>
+</body>
+</html>
