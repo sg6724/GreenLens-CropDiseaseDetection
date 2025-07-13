@@ -11,7 +11,7 @@ GreenLens is a full-stack, AI-driven plant disease detection platform designed t
 * 🔴 **Grad-CAM Heatmap** highlighting infected regions on the leaf
 * 🤖 **Google Gemini LLM** (via LangChain) for disease explanation and remedies
 * ☁️ **Weather Integration** using WeatherAPI to suggest climate suitability
-* 🔊 **Text-to-Speech** using gTTS for auditory feedback in regional language
+* 🔊 **Multi-Lingual Text-to-Speech** using gTTS for auditory feedback in regional language
 * 🌐 **Modern UI** built with React.js and TailwindCSS
 * ⚡ **FastAPI Backend** for efficient model inference and logic orchestration
 
