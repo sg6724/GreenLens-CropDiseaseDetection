@@ -21,8 +21,7 @@ GreenLens is a full-stack, AI-driven plant disease detection platform designed t
 
 **Frontend**
 
-* React.js
-* TailwindCSS
+* HTML, CSS, JS
 * Axios
 * Audio player for TTS
 
