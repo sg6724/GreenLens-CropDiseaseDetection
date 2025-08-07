@@ -1,5 +1,5 @@
 
-# 🌿 GreenLens: AI-Powered Crop Disease Detection & Remedy System
+# 🌿 GreenLens: AI-Powered Crop Health Assistant
 
 GreenLens is a full-stack, AI-driven plant disease detection platform designed to assist farmers and agronomists in identifying crop issues, understanding affected areas, and receiving actionable remedies based on real-time weather conditions and AI reasoning. Combining computer vision, LLMs, and voice interaction, GreenLens delivers an accessible and intelligent solution for sustainable agriculture.
 
